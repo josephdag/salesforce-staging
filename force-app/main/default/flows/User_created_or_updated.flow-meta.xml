@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>55.0</apiVersion>
+    <decisions>
+        <description>Checks to see if the user&apos;s profile was changed to Clinical Science or something else and if they are already a member of NonClinicalScience Public group.</description>
+        <name>Profile_updated</name>
+        <label>Profile updated</label>
+        <locationX>314</locationX>
+        <locationY>335</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Changed_to_NonClinical_Science_or_reactivated</name>
+            <conditionLogic>(1 AND 2 AND 3) OR (4 AND 5 AND 2)</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Profile.Id</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record__Prior.Profile.Id</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Profile.Name</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Clinical Science</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Added_to_NonClinicalScience_Group__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.IsActive</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record__Prior.IsActive</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.IsActive</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Create_GroupMember_record</targetReference>
+            </connector>
+            <label>Changed to NonClinical Science or reactivated</label>
+        </rules>
+        <rules>
+            <name>Changed_to_ClinicalScience_from_NonClinicalScience</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Profile.Id</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record__Prior.Profile.Id</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Profile.Name</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Clinical Science</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Added_to_NonClinicalScience_Group__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Delete_GroupMember_record</targetReference>
+            </connector>
+            <label>Changed to ClinicalScience from NonClinicalScience</label>
+        </rules>
+    </decisions>
+    <description>Automatically adds or removes users from NonClinicalScience Public Group based on a change in the User&apos;s profile.</description>
+    <environments>Default</environments>
+    <interviewLabel>User created or updated {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>User created or updated</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <description>Adds the User to the NonliinicalScience Public Group through creation of a GroupMember record.</description>
+        <name>Create_GroupMember_record</name>
+        <label>Create GroupMember record</label>
+        <locationX>50</locationX>
+        <locationY>455</locationY>
+        <connector>
+            <targetReference>Update_AddedtoGroup_field</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>GroupId</field>
+            <value>
+                <stringValue>00G6g0000031JEE</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>UserOrGroupId</field>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <object>GroupMember</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordDeletes>
+        <description>Removes the User from the NonCLinicalGroup Public Group by deleting the GroupMember record.</description>
+        <name>Delete_GroupMember_record</name>
+        <label>Delete GroupMember record</label>
+        <locationX>314</locationX>
+        <locationY>455</locationY>
+        <connector>
+            <targetReference>Update_NonClinical_Group_field</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>GroupId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>00G6g0000031JEE</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>UserOrGroupId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <object>GroupMember</object>
+    </recordDeletes>
+    <recordUpdates>
+        <description>Checks off that the User is now part of the NonClinicalScience Profile group</description>
+        <name>Update_AddedtoGroup_field</name>
+        <label>Update AddedtoGroup field</label>
+        <locationX>50</locationX>
+        <locationY>575</locationY>
+        <inputAssignments>
+            <field>Added_to_NonClinicalScience_Group__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Updates the User record to remove the Added to NonClinicalSceince Group checkbox.</description>
+        <name>Update_NonClinical_Group_field</name>
+        <label>Update NonClinical Group field</label>
+        <locationX>314</locationX>
+        <locationY>575</locationY>
+        <inputAssignments>
+            <field>Added_to_NonClinicalScience_Group__c</field>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>188</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Profile_updated</targetReference>
+        </connector>
+        <object>User</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

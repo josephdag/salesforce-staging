@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>52.0</apiVersion>
+    <formulas>
+        <name>CloseDate</name>
+        <dataType>Date</dataType>
+        <expression>DATE( YEAR( TODAY() ) + FLOOR( ( MONTH ( TODAY()) + 5 - 1 ) / 12 ), MOD( MONTH ( TODAY()) + 5 - 1 + IF( DAY ( TODAY()) &gt; CASE( MOD( MONTH( TODAY()) + 5 - 1, 12 ) + 1, 2, 28, 4, 30, 6, 30, 9, 30, 11, 30, 31 ), 1, 0 ), 12 ) + 1, IF( DAY( TODAY()) &gt; CASE( MOD( MONTH( TODAY()) + 5 - 1, 12 ) + 1, 2, 28, 4, 30, 6, 30, 9, 30, 11, 30, 31 ), 1, DAY( TODAY()) ) )</expression>
+    </formulas>
+    <interviewLabel>Set Default Opp Close Date {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Set Default Opp Close Date</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>FREE_FORM_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Set_Close_Date_Default</name>
+        <label>Set Close Date Default</label>
+        <locationX>155</locationX>
+        <locationY>430</locationY>
+        <inputAssignments>
+            <field>CloseDate</field>
+            <value>
+                <elementReference>CloseDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>28</locationX>
+        <locationY>62</locationY>
+        <connector>
+            <targetReference>Set_Close_Date_Default</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Converted_Lead_ID__c</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <object>Opportunity</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

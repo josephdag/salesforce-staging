@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>51.0</apiVersion>
+    <assignments>
+        <name>Assign_Moved_to_Solution_Identified</name>
+        <label>Assign Moved to Solution Identified</label>
+        <locationX>754</locationX>
+        <locationY>947</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Moved_to_Solution_Identified__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Is_Moved_to_Solution_Deployed</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Moved_to_Solution_Identified1</name>
+        <label>Assign Moved to Solution Identified</label>
+        <locationX>314</locationX>
+        <locationY>539</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Moved_to_Solution_Identified__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Assign_Moved_to_Solution_Provided1</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Moved_to_Solution_Provided</name>
+        <label>Assign Moved to Solution Provided</label>
+        <locationX>754</locationX>
+        <locationY>647</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Moved_to_Solution_Provided__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Is_Moved_to_Solution_Identified</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Moved_to_Solution_Provided1</name>
+        <label>Assign Moved_to_Solution_Provided</label>
+        <locationX>446</locationX>
+        <locationY>731</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Moved_to_Solution_Provided__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Date_Time_0</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Is_Moved_to_Solution_Deployed</name>
+        <label>Is Moved to Solution Deployed</label>
+        <locationX>1040</locationX>
+        <locationY>1223</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Moved_to_Solution_Deployed__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Update_Date_Time_0_0</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Is_Moved_to_Solution_Identified</name>
+        <label>Is Moved to Solution Identified</label>
+        <locationX>886</locationX>
+        <locationY>839</locationY>
+        <defaultConnector>
+            <targetReference>Is_Moved_to_Solution_Deployed</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Moved_to_Solution_Identified</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Moved_to_Solution_Identified__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Moved_to_Solution_Identified</targetReference>
+            </connector>
+            <label>Moved to Solution Identified</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Is_Moved_to_Solution_Identified1</name>
+        <label>Is Moved to Solution Identified</label>
+        <locationX>446</locationX>
+        <locationY>431</locationY>
+        <defaultConnector>
+            <targetReference>Assign_Moved_to_Solution_Provided1</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Moved_to_Solution_Identified1</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Moved_to_Solution_Identified__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Moved_to_Solution_Identified1</targetReference>
+            </connector>
+            <label>Moved to Solution Identified</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>IS_Moved_to_Solution_Identified_OR_Moved_to_Solution_Provided</name>
+        <label>IS Moved to Solution Identified OR Moved_to_Solution Provided</label>
+        <locationX>1040</locationX>
+        <locationY>431</locationY>
+        <defaultConnector>
+            <targetReference>Is_Moved_to_Solution_Deployed</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Moved_to_Solution_Identified_OR_Moved_to_Solution_Provided</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Moved_to_Solution_Identified__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Moved_to_Solution_Provided__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Is_Moved_to_Solution_Provided</targetReference>
+            </connector>
+            <label>Moved to Solution Identified OR Moved to Solution Provided</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Is_Moved_to_Solution_Provided</name>
+        <label>Is Moved to Solution Provided</label>
+        <locationX>886</locationX>
+        <locationY>539</locationY>
+        <defaultConnector>
+            <targetReference>Is_Moved_to_Solution_Identified</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Moved_to_Solution_Provided</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Moved_to_Solution_Provided__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Moved_to_Solution_Provided</targetReference>
+            </connector>
+            <label>Moved_to_Solution_Provided</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Status_Moved_To</name>
+        <label>Status Moved To</label>
+        <locationX>710</locationX>
+        <locationY>323</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Identified</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record__Prior.Status</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Solution Identified</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Status</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Solution Identified</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Update_Date_Time</targetReference>
+            </connector>
+            <label>Identified</label>
+        </rules>
+        <rules>
+            <name>Provided</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record__Prior.Status</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Solution Provided</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Status</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Solution Provided</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Is_Moved_to_Solution_Identified1</targetReference>
+            </connector>
+            <label>Provided</label>
+        </rules>
+        <rules>
+            <name>Deployed</name>
+            <conditionLogic>(1 AND 2) OR (3 AND 4)</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record__Prior.Status</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Solution Deployed</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Status</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Solution Deployed</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Status</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Closed Resolved</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record__Prior.Status</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>Closed Resolved</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>IS_Moved_to_Solution_Identified_OR_Moved_to_Solution_Provided</targetReference>
+            </connector>
+            <label>Deployed</label>
+        </rules>
+    </decisions>
+    <interviewLabel>Solution Date/Time Markers {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Solution Date/Time Markers</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Update_Date_Time</name>
+        <label>Update Date Time</label>
+        <locationX>50</locationX>
+        <locationY>431</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Moved_to_Solution_Identified__c</field>
+            <value>
+                <elementReference>$Flow.CurrentDateTime</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Case</object>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_Date_Time_0</name>
+        <label>Update Date Time</label>
+        <locationX>446</locationX>
+        <locationY>839</locationY>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <name>Update_Date_Time_0_0</name>
+        <label>Update Date Time</label>
+        <locationX>1040</locationX>
+        <locationY>1331</locationY>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>584</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Status_Moved_To</targetReference>
+        </connector>
+        <object>Case</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

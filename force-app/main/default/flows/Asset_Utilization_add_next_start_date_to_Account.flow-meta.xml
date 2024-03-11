@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>57.0</apiVersion>
+    <decisions>
+        <name>Asset_Utilization_has_End_Date_and_Asset</name>
+        <label>Asset Utilization has End Date and Asset</label>
+        <locationX>446</locationX>
+        <locationY>335</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>End_Date_and_Asset_with_Account</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Asset__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.End_Date__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Account__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Update_Asset_with_Next_Asset_Utilization_Date</targetReference>
+            </connector>
+            <label>End Date and Asset with Account</label>
+        </rules>
+        <rules>
+            <name>No_Account</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Asset__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Account__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Asset__r.AccountId</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Add_Account_to_Asset_Utilization</targetReference>
+            </connector>
+            <label>No Account</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Evaluates if the End Date on the triggering Asset utilization record is filled in</description>
+        <name>End_Date_filled_in</name>
+        <label>End Date filled in</label>
+        <locationX>446</locationX>
+        <locationY>575</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Has_End_Date</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.End_Date__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Update_Next_Asset_Utilization_Date_on_Asset</targetReference>
+            </connector>
+            <label>Has End Date</label>
+        </rules>
+    </decisions>
+    <description>Fills in Next Asset Utilization Start Date to related Asset based off of the End Date for the Asset Utilization record being created.</description>
+    <formulas>
+        <description>Adds one day to the End Date of the Asset Utilization</description>
+        <name>EndDatePlusOne</name>
+        <dataType>Date</dataType>
+        <expression>{!$Record.End_Date__c} + 1</expression>
+    </formulas>
+    <interviewLabel>Asset Utilization - add next start date to Account {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Asset Utilization - add next start date to Account</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <description>Uses the Account of the related Asset if the Account field on Asset Utilization is blank to fill in Account field on Asset Utilization.</description>
+        <name>Add_Account_to_Asset_Utilization</name>
+        <label>Add Account to Asset Utilization</label>
+        <locationX>446</locationX>
+        <locationY>455</locationY>
+        <connector>
+            <targetReference>End_Date_filled_in</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Account__c</field>
+            <value>
+                <elementReference>$Record.Asset__r.AccountId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Adds the start date for the next Asset Utilization record to the Asset, based on the End Date of the triggering record.</description>
+        <name>Update_Asset_with_Next_Asset_Utilization_Date</name>
+        <label>Update Asset with Next Asset Utilization Date</label>
+        <locationX>50</locationX>
+        <locationY>455</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Asset__c</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Next_Asset_Utilization_Start_Date__c</field>
+            <value>
+                <elementReference>EndDatePlusOne</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Asset</object>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Adds the start date for the next Asset Utilization record to the Asset, based on the End Date of the triggering record.</description>
+        <name>Update_Next_Asset_Utilization_Date_on_Asset</name>
+        <label>Update Next Asset Utilization Date on Asset</label>
+        <locationX>314</locationX>
+        <locationY>695</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Asset__c</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Next_Asset_Utilization_Start_Date__c</field>
+            <value>
+                <elementReference>EndDatePlusOne</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Asset</object>
+    </recordUpdates>
+    <start>
+        <locationX>320</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Asset_Utilization_has_End_Date_and_Asset</targetReference>
+        </connector>
+        <object>Asset_Utilization__c</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

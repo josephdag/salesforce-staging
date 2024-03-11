@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Send_New_Tracking_Number_email_to_all_related_Case_Owners</name>
+        <label>Send New Tracking Number email to all related Case Owners</label>
+        <locationX>50</locationX>
+        <locationY>1055</locationY>
+        <actionName>emailSimple</actionName>
+        <actionType>emailSimple</actionType>
+        <connector>
+            <targetReference>Netsuite_Order_ID_changed</targetReference>
+        </connector>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>emailBody</name>
+            <value>
+                <elementReference>EmailBody</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailAddressesArray</name>
+            <value>
+                <elementReference>CaseOwnerEmails</elementReference>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>emailSubject</name>
+            <value>
+                <elementReference>EmailSubject</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>emailSimple</nameSegment>
+        <versionSegment>1</versionSegment>
+    </actionCalls>
+    <apiVersion>56.0</apiVersion>
+    <assignments>
+        <name>Assign_Case_Owner_to_collection_variable</name>
+        <label>Assign Case Owner to collection variable</label>
+        <locationX>138</locationX>
+        <locationY>863</locationY>
+        <assignmentItems>
+            <assignToReference>CaseOwnerEmails</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Get_Case_Owners.Email</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Case_Owners</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Has_related_RMAs</name>
+        <label>Has related RMAs?</label>
+        <locationX>182</locationX>
+        <locationY>1547</locationY>
+        <defaultConnector>
+            <targetReference>Location_to_Return_Device</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Get_related_RMAs_not_null</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_all_related_RMAs</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Update_related_RMA_records</targetReference>
+            </connector>
+            <label>Get related RMAs not null</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Has_RMAs</name>
+        <label>Has RMAs</label>
+        <locationX>182</locationX>
+        <locationY>539</locationY>
+        <defaultConnector>
+            <targetReference>Netsuite_Order_ID_changed</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Related_RMAs</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_related_RMAs</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Case_Owners</targetReference>
+            </connector>
+            <label>Related RMAs</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Evaluates what value Location to Return to Device is filled in with.</description>
+        <name>Location_to_Return_Device</name>
+        <label>Location to Return Device</label>
+        <locationX>336</locationX>
+        <locationY>1931</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Benchmark_Electronics</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Location_to_Return_Device__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Benchmark Electronics</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Location_to_Return_Device__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record__Prior.Location_to_Return_Device__c</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Update_Address_with_Benchmark_info</targetReference>
+            </connector>
+            <label>Benchmark Electronics</label>
+        </rules>
+        <rules>
+            <name>Hyperfine</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Location_to_Return_Device__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>Hyperfine</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Location_to_Return_Device__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record__Prior.Location_to_Return_Device__c</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Update_Address_with_Hyperfine_info</targetReference>
+            </connector>
+            <label>Hyperfine</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Decides if the Netsuite Order ID on RMA Shipment object has changed.</description>
+        <name>Netsuite_Order_ID_changed</name>
+        <label>Netsuite Order ID changed</label>
+        <locationX>336</locationX>
+        <locationY>1331</locationY>
+        <defaultConnector>
+            <targetReference>Location_to_Return_Device</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Is_changed</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Netsuite_Order_ID__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record__Prior.Netsuite_Order_ID__c</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Netsuite_Order_ID__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_all_related_RMAs</targetReference>
+            </connector>
+            <label>Is changed</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Tracking_Number_added</name>
+        <label>Tracking Number added?</label>
+        <locationX>336</locationX>
+        <locationY>323</locationY>
+        <defaultConnector>
+            <targetReference>Netsuite_Order_ID_changed</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>New_Tracking_Number</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Tracking_Number_s__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record__Prior.Tracking_Number_s__c</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Tracking_Number_s__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_related_RMAs</targetReference>
+            </connector>
+            <label>New Tracking Number</label>
+        </rules>
+    </decisions>
+    <description>8/7/23: Moves automation of return address from workflows to this flow</description>
+    <formulas>
+        <description>Netsuite Order Id of triggering RMA Shipment record</description>
+        <name>RMAShipmentNetsuiteOrderId</name>
+        <dataType>String</dataType>
+        <expression>{!$Record.Netsuite_Order_ID__c}</expression>
+    </formulas>
+    <interviewLabel>RMA Shipment created or updated {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>RMA Shipment created or updated</label>
+    <loops>
+        <description>Gets the Owners of the Cases that the RMAs are related to.</description>
+        <name>Case_Owners</name>
+        <label>Case Owners</label>
+        <locationX>50</locationX>
+        <locationY>647</locationY>
+        <collectionReference>Get_related_RMAs</collectionReference>
+        <iterationOrder>Asc</iterationOrder>
+        <nextValueConnector>
+            <targetReference>Get_Case_Owners</targetReference>
+        </nextValueConnector>
+        <noMoreValuesConnector>
+            <targetReference>Send_New_Tracking_Number_email_to_all_related_Case_Owners</targetReference>
+        </noMoreValuesConnector>
+    </loops>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <description>Gets all RMAS with RMA Shipment equal to triggering record&apos;s ID</description>
+        <name>Get_all_related_RMAs</name>
+        <label>Get all related RMAs</label>
+        <locationX>182</locationX>
+        <locationY>1439</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Has_related_RMAs</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>RMA_Shipment__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>RMA__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Get Owner of each Case related to an RMA which looks up to triggering RMA Shipment.</description>
+        <name>Get_Case_Owners</name>
+        <label>Get Case Owners</label>
+        <locationX>138</locationX>
+        <locationY>755</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_Case_Owner_to_collection_variable</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Case_Owners.Case__r.Owner:User.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>User</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Gets all RMAs that the triggering RMA Shipment is related to.</description>
+        <name>Get_related_RMAs</name>
+        <label>Get related RMAs</label>
+        <locationX>182</locationX>
+        <locationY>431</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Has_RMAs</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>RMA_Shipment__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>RMA__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <description>Updates the Address fields with the address for Benchmark Electronics</description>
+        <name>Update_Address_with_Benchmark_info</name>
+        <label>Update Address with Benchmark info</label>
+        <locationX>72</locationX>
+        <locationY>2039</locationY>
+        <inputAssignments>
+            <field>Attention_To__c</field>
+            <value>
+                <stringValue>Susan Poliquin (Hyperfine RMA)</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>City__c</field>
+            <value>
+                <stringValue>Nashua</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Country__c</field>
+            <value>
+                <stringValue>United States</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Ship_To__c</field>
+            <value>
+                <stringValue>Benchmark Electronics</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>State__c</field>
+            <value>
+                <stringValue>NH</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Street__c</field>
+            <value>
+                <stringValue>100 Innovative Way</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Zip_Code__c</field>
+            <value>
+                <stringValue>03062</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Updates the Address fields with the address for Hyperfine</description>
+        <name>Update_Address_with_Hyperfine_info</name>
+        <label>Update Address with Hyperfine info</label>
+        <locationX>336</locationX>
+        <locationY>2039</locationY>
+        <inputAssignments>
+            <field>Attention_To__c</field>
+            <value>
+                <stringValue>Chance Kamps</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>City__c</field>
+            <value>
+                <stringValue>Guilford</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Country__c</field>
+            <value>
+                <stringValue>United States</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Ship_To__c</field>
+            <value>
+                <stringValue>Hyperfine</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>State__c</field>
+            <value>
+                <stringValue>CT</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Street__c</field>
+            <value>
+                <stringValue>351 New Whitfield St.</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Zip_Code__c</field>
+            <value>
+                <stringValue>06437</stringValue>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <recordUpdates>
+        <description>Updates the Netsuite Order Id from the triggering RMA Shipment record to all related RMA  records.</description>
+        <name>Update_related_RMA_records</name>
+        <label>Update related RMA records</label>
+        <locationX>50</locationX>
+        <locationY>1655</locationY>
+        <connector>
+            <targetReference>Location_to_Return_Device</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>RMA_Shipment__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>RMA_Shipment_Netsuite_Order_ID__c</field>
+            <value>
+                <elementReference>$Record.Netsuite_Order_ID__c</elementReference>
+            </value>
+        </inputAssignments>
+        <object>RMA__c</object>
+    </recordUpdates>
+    <start>
+        <locationX>210</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Tracking_Number_added</targetReference>
+        </connector>
+        <object>RMA_Shipment__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <textTemplates>
+        <name>EmailBody</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>A tracking number has been added to the {!$Record.Name} RMA Shipment record for an RMA record related to a Case which you own. The tracking number is {!$Record.Tracking_Number_s__c}. Click the following link to view the RMA Shipment record: https://hyperfine.lightning.force.com/lightning/r/RMA_Shipment__c/{!$Record.Id}/view</text>
+    </textTemplates>
+    <textTemplates>
+        <name>EmailSubject</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>RMA Shipment tracking number added</text>
+    </textTemplates>
+    <variables>
+        <description>Stores the emails of the owners of Cases related to each RMA which the RMA Shipment is related to.</description>
+        <name>CaseOwnerEmails</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Stores the users that own the Cases related to the RMAs which the triggering RMA Shipment record is related to.</description>
+        <name>CaseOwners</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>User</objectType>
+    </variables>
+</Flow>
